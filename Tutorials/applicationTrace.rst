@@ -13,6 +13,43 @@ and a bigger ROM footprint for the log messages. When measuring
 performance of an application, be sure to remove or disable all traces
 so it has no impact on the performances.
 
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+NEW PLAN TO FOLLOW
+
+enum ApplicationState{
+
+INSTALLED, STARTED, STOPPED, UNINSTALLED
+
+}
+
+2 ways:
+
+1)API Trace
+
+link to trace.rst
+Real time trace, based on integer events (used for SystemView)
+https://repository.microej.com/artifacts/ej/api/trace/1.1.0/
+
+trace.record(EVENT_STATE_CHANGED, oldState.ordinal(), newState.ordinal())
+
+2.1) Logging
+Textual trace for more complex data
+
+2.bis)
+    reduce string fooprint using runtime library
+
+
+logger.log(INFO, "The application state has changed from "+oldState.toString() +" to " newState.toString())
+
+>>
+
+logger.log(INFO, Message.get(CODE, oldState.toString(), newState.toString())
+
+>> E=38 INSTALLED,STARTED
+
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
 In the MicroEJ SDK resources, two libraries allow the users to do proper
 logging.
 
