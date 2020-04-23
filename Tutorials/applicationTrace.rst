@@ -1,5 +1,5 @@
-How to do proper log/trace in an application
-============================================
+Application Trace
+=================
 
 The easiest way to add traces in an application is to use the Java base
 print functions: ``System.out.println(...)``. But, it is not very
@@ -13,7 +13,10 @@ and a bigger ROM footprint for the log messages. When measuring
 performance of an application, be sure to remove or disable all traces
 so it has no impact on the performances.
 
---- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+In the MicroEJ environment, two ways are posible for application logging: 
+real time trace based on integer event or textual tracing for more complex data.
+
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- 
 
 NEW PLAN TO FOLLOW
 
@@ -48,7 +51,25 @@ logger.log(INFO, Message.get(CODE, oldState.toString(), newState.toString())
 
 >> E=38 INSTALLED,STARTED
 
---- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- ---
+
+Event based tracing
+-------------------
+
+Api Trace
+~~~~~~~~~
+The API Trace is a Java library based over a low-level api that allow users 
+to record events using named Tracer and a limited number of integer events.
+
+- To use this library in your project add the following dependency line in your module.ivy: 
+
+   ``<dependency org=“ej.api” name=trace rev=“x.y.z”/>``
+
+- More informations about the API are available on the MicroEJ documentation website, 
+  in the :ref:`API Trace section <apiTrace>`.
+
+Textual tracing
+---------------
 
 In the MicroEJ SDK resources, two libraries allow the users to do proper
 logging.
@@ -63,12 +84,12 @@ Both libraries have the possibility to associate a level to the Logger
 to allow only certain levels of messages to be logged.
 
 ej.library.eclasspath.logging library
--------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To use this library, add the following dependency line in the project’s
 module.ivy:
 
-   <dependency org=“ej.library.eclasspath” name=“logging” rev=“x.y.z”/>
+   ``<dependency org=“ej.library.eclasspath” name=“logging” rev=“x.y.z”/>``
 
 -  In every application that uses this library, there is only one
    instance of a ``LogManager`` object.
@@ -98,11 +119,11 @@ module.ivy:
    there is one.
 
 ej.library.runtime.message library
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To use this library, add this dependency line in the project module.ivy:
 
-   <dependency org=“ej.library.runtime” name=“message” rev=“x.y.z”/>
+   ``<dependency org=“ej.library.runtime” name=“message” rev=“x.y.z”/>``
 
 -  A ``BasicMessageBuilder`` is implemented in the library. The messages
    that is built follows this format: >
@@ -138,29 +159,30 @@ To use this library, add this dependency line in the project module.ivy:
    ``ej.library.eclasspath.logging`` when embedded and has a lower RAM /
    CPU consumption at runtime.
 
-BON Constants
--------------
-
-Since version 1.4.0 of the ```ej.api.bon``` library, it is possible to use compile-time constants.
-
-You can find more information about BON Constants at :ref:`section.classpath.elements.Constants`
-
 Remove traces for the production binary
 ---------------------------------------
+There is multiple possibilities to remove all traces for a production binary.
 
--  To remove all traces for a production binary, use the ProGuard open
-   source tool.
+One possibility is to used constants to get rid of portion of code.
+
+- A boolean constant declared in an if statement can be used to fully remove portion of code.
+- When this boolean is resolved as false, the code become unreachable and thus, will not be embedded.
+- You can find more information about the usage of constants in an if statement 
+  by :ref:`clicking here <section.classpath.elements.Constants.ifRemoval>`.
+
+Another possibility is to use external tools.
+
+-  For example, the ProGuard open source tool.
 
    -  ProGuard is a command-line tool that shrinks, optimizes and
       obfuscates Java code.
    -  It is able to optimize bytecode as well as detect and remove
       unused instructions. For example, it can be used to remove all log
       messages in a production binary.
-
--  A How-To is available in the MicroEJ github for using ProGuard in
-   https://github.com/MicroEJ/How-To/tree/master/Proguard-Get-Started.
--  This example is based on removing code of elements of the library
-   **ej.library.eclasspath.logging**.
+   -  A How-To is available in the MicroEJ github for using ProGuard in 
+      https://github.com/MicroEJ/How-To/tree/master/Proguard-Get-Started.
+   -  This example is based on removing code of elements of the library 
+      **ej.library.eclasspath.logging**.
 
 ..
    | Copyright 2008-2020, MicroEJ Corp. Content in this space is free 
