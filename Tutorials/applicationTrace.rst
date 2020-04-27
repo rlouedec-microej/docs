@@ -16,43 +16,6 @@ so it has no impact on the performances.
 In the MicroEJ environment, two ways are posible for application logging: 
 real time trace based on integer event or textual tracing for more complex data.
 
---- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- 
-
-NEW PLAN TO FOLLOW
-
-enum ApplicationState{
-
-INSTALLED, STARTED, STOPPED, UNINSTALLED
-
-}
-
-2 ways:
-
-1)API Trace
-
-link to trace.rst
-Real time trace, based on integer events (used for SystemView)
-https://repository.microej.com/artifacts/ej/api/trace/1.1.0/
-
-trace.record(EVENT_STATE_CHANGED, oldState.ordinal(), newState.ordinal())
-
-2.1) Logging
-Textual trace for more complex data
-
-2.bis)
-    reduce string fooprint using runtime library
-
-
-logger.log(INFO, "The application state has changed from "+oldState.toString() +" to " newState.toString())
-
->>
-
-logger.log(INFO, Message.get(CODE, oldState.toString(), newState.toString())
-
->> E=38 INSTALLED,STARTED
-
---- --- --- --- --- --- --- --- --- --- --- --- --- --- ------ --- --- --- --- --- --- ---
-
 Event based tracing
 -------------------
 
@@ -68,11 +31,16 @@ to record events using named Tracer and a limited number of integer events.
 - More informations about the API are available on the MicroEJ documentation website, 
   in the :ref:`API Trace section <apiTrace>`.
 
+- Example
+
+- The output can be redirected to any standard output and be used by third party like, for example, Segger's SystemView.
+- A MicroEJ demo platform of the ``NXP OM13098`` board containing the SystemView support is available and downloadable 
+  by `clicking here <https://developer.microej.com/packages/referenceimplementations/U3OER/2.0.1/OM13098-U3OER-fullPackaging-eval-2.0.1.zip>`_.
+
 Textual tracing
 ---------------
 
-In the MicroEJ SDK resources, two libraries allow the users to do proper
-logging.
+In the MicroEJ SDK resources, two libraries allow the users to do textual tracing.
 
 -  **ej.library.eclasspath.logging**. It is based over the
    **java.util.logging** library and follows the same principles of
@@ -82,6 +50,16 @@ logging.
 
 Both libraries have the possibility to associate a level to the Logger
 to allow only certain levels of messages to be logged.
+
+The following examples will be using the following definitions:
+
+.. code-block:: java
+
+   enum ApplicationState {
+      INSTALLED, STARTED, STOPPED, UNINSTALLED
+   }
+
+   private static ApplicationState currentState;
 
 ej.library.eclasspath.logging library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,6 +95,30 @@ module.ivy:
    ``LogRecord`` on the standard error output stream. It also prints the
    stack trace of the ``Throwable`` associated to the ``LogRecord`` if
    there is one.
+
+- Example:
+
+   .. code-block:: java
+     
+      public static void main(String[] args) {
+         currentState = ApplicationState.UNINSTALLED;
+         switchState(ApplicationState.INSTALLED);
+      }
+
+      public static void switchState(ApplicationState newState) {
+         ApplicationState oldState = currentState;
+         currentState = newState;
+
+         Logger logger = Logger.getLogger("ApplicationLogger");
+         logger.log(Level.INFO, "The application state has changed from " + oldState.toString() + " to "
+               + currentState.toString() + ".");
+      }
+
+   - The logging output will be, directly printed in the console: 
+
+   .. code-block:: java
+      
+      applicationlogger INFO: The application state has changed from UNINSTALLED to INSTALLED.
 
 ej.library.runtime.message library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,6 +160,31 @@ To use this library, add this dependency line in the project module.ivy:
 -  The library ``ej.library.runtime.message`` takes less space than
    ``ej.library.eclasspath.logging`` when embedded and has a lower RAM /
    CPU consumption at runtime.
+
+- Example 
+   
+   .. code-block:: java 
+
+      public static void main(String[] args) {
+         currentState = ApplicationState.UNINSTALLED;
+
+         switchState(ApplicationState.INSTALLED);
+      }
+
+      public static void switchState(ApplicationState newState) {
+         ApplicationState oldState = currentState;
+         currentState = newState;
+
+         String category = "Application";
+         int logID = 2;
+         BasicMessageLogger.INSTANCE.log(Level.INFO, category, logID, oldState, currentState);
+      }
+
+   - The logging output will be, directly printed in the console: 
+
+   .. code-block:: java
+      
+      Application:I=2 UNINSTALLED INSTALLED
 
 Remove traces for the production binary
 ---------------------------------------
