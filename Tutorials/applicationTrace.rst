@@ -196,6 +196,28 @@ One possibility is to used constants to get rid of portion of code.
 - When this boolean is resolved as false, the code become unreachable and thus, will not be embedded.
 - You can find more information about the usage of constants in an if statement 
   by :ref:`clicking here <section.classpath.elements.Constants.ifRemoval>`.
+- If we consider the constant ``com.mycompany.logging`` was declared as false in a file named ``example.constants.list``.
+
+   - To remove the previous logging, add an if statement as follow:
+   
+   .. code-block:: java 
+
+      public static void main(String[] args) {
+         currentState = ApplicationState.UNINSTALLED;
+
+         switchState(ApplicationState.INSTALLED);
+      }
+
+      public static void switchState(ApplicationState newState) {
+         ApplicationState oldState = currentState;
+         currentState = newState;
+
+         if(Constants.getBoolean("com.mycompany.logging")) {
+            String category = "Application";
+            int logID = 2;
+            BasicMessageLogger.INSTANCE.log(Level.INFO, category, logID, oldState, currentState);
+         }
+      }
 
 Another possibility is to use external tools.
 
